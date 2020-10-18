@@ -41,7 +41,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 }
 
 bool RoutePlanner::comp(RouteModel::Node* one, RouteModel::Node* two){
-        return((one->h_value+one->g_value) < (two->h_value+two->g_value));
+        return((one->h_value+one->g_value) > (two->h_value+two->g_value));
 }
 
 // TODO 5: Complete the NextNode method to sort the open list and return the next node.
@@ -53,8 +53,8 @@ bool RoutePlanner::comp(RouteModel::Node* one, RouteModel::Node* two){
 
 RouteModel::Node *RoutePlanner::NextNode() {
     sort(open_list.begin(),open_list.end(),comp);
-
-    return open_list[0];
+    
+    return open_list.back();
 }
 
 
@@ -97,10 +97,14 @@ void RoutePlanner::AStarSearch() {
 
     current_node = start_node;
     // TODO: Implement your solution here.
-    while (current_node!=end_node)
+    while (!open_list.empty())
     {
         AddNeighbors(current_node);
         current_node = NextNode();
+        open_list.pop_back();
+        if(current_node==end_node){
+            break;
+        }
     }
 
     m_Model.path = ConstructFinalPath(current_node);
