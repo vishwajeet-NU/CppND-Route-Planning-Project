@@ -14,7 +14,7 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 }
 
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-    return (node->distance(*start_node));
+    return (node->distance(*end_node));
 
 }
 
@@ -28,8 +28,21 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
+    current_node->FindNeighbors();
+    for(auto itr:current_node->neighbors){
+        itr->parent = current_node;
+        itr->g_value = current_node->g_value + itr->distance(*current_node);
+        itr->h_value = CalculateHValue(itr);
+        itr->visited = true;
+        open_list.push_back(itr);
+
+    }
+
 }
 
+bool RoutePlanner::comp(RouteModel::Node* one, RouteModel::Node* two){
+        return((one->h_value+one->g_value) < (two->h_value+two->g_value));
+}
 
 // TODO 5: Complete the NextNode method to sort the open list and return the next node.
 // Tips:
@@ -39,7 +52,9 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Return the pointer.
 
 RouteModel::Node *RoutePlanner::NextNode() {
+    sort(open_list.begin(),open_list.end(),comp);
 
+    return open_list[0];
 }
 
 
@@ -58,6 +73,12 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 
     // TODO: Implement your solution here.
 
+    while(current_node!=start_node){
+        RouteModel::Node *pr = current_node->parent;
+        distance+= current_node->distance(*pr);
+        path_found.push_back(*pr);
+        current_node = pr;
+    }
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
 
@@ -74,6 +95,14 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
 
+    current_node = start_node;
     // TODO: Implement your solution here.
+    while (current_node!=end_node)
+    {
+        AddNeighbors(current_node);
+        current_node = NextNode();
+    }
+
+    m_Model.path = ConstructFinalPath(current_node);
 
 }
