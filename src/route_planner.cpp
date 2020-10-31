@@ -41,7 +41,7 @@ bool RoutePlanner::comp(RouteModel::Node* one, RouteModel::Node* two){
 RouteModel::Node *RoutePlanner::NextNode() {
     sort(open_list.begin(),open_list.end(),comp);
     RouteModel::Node *ret = open_list.back();
-    open_list.pop_back()
+    open_list.pop_back();
     return ret;
 }
 
@@ -51,7 +51,6 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
     // Create path_found vector
     distance = 0.0f;
     std::vector<RouteModel::Node> path_found = {};
-    std::cout<<"current_node final_path = "current_node->x<<" "<<current_node->y<<std::endl;
     // TODO: Implement your solution here.
     path_found.push_back(*current_node);
     while(current_node!=start_node){
